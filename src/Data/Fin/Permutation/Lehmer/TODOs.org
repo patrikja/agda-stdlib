@@ -1,0 +1,43 @@
+** 1. The group theory story (operations & properties)
+To justify the inclusion in *stdlib*, the implementation must provide the standard group structure of |Permutation n|.
+
++ [ ] Proper Inverses :: Complete the proof for `inverse-prop₂` (|ps^{-1} ∙ ps = id|).
+  + Note :: This is trickier because `_∙_` inducts on the second argument. Probably need |invert-head| and |invert-split| lemmas from the earlier implementation.
+  + or redo using a stronger "semantic view" 
++ [ ] Uniqueness & Composition ::
+  + [ ] `inv-unique` :: Prove that if |ps ∙ qs = id|, then |qs = inverse ps|.
+  + [ ] `inv-compose` :: Prove |(ps ∙ qs)^{-1} = qs^{-1} ∙ ps^{-1}|.
++ [ ] Associativity :: Finalize the proof for `_∙_` associativity.
++ [ ] Conjugation :: Finalize the preservation properties (conjugation preserves composition and identity). Maybe generic group properties (look them up).
+
+** 2. The "Split View" & Induction Principle
++ Standard pattern matching on Lehmer codes (splitting at index 0) isn't enough for clean proofs.
++ We can benefit from an induction principle based on splitting at an arbitrary index |i| into |Split pi ps'| such that |extend i p_i ps' == ps|.
+
++ [ ] Finalize |PView| :: Ensure |splitView i ps| correctly extracts |(i, pi)| and the "remaining" permutation |ps'|.
++ [ ] |extend| / |splitView| Round-trip :: Prove |splitView-spec|: |splitView i (extend i pᵢ ps) ≡ Split pᵢ ps|. This is the "correctness" of the view.
++ [ ] View-based Composition :: Implement (or prove equivalent) the "intelligent" composition that uses the view. This may make |inverse-prop₂| significantly easier.
+  #+BEGIN_SRC agda
+  compose : Permutation n → Permutation n → Permutation n
+  compose ps (i :- qs) with splitView i ps
+  ... | Split pᵢ ps' = pᵢ :- (ps' ∙ qs)
+  #+END_SRC
+
+** 3. Integration with Existing |Data.Fin.Permutation|
++ The current *stdlib* uses a "record of bijections" while the "Lehmer code" approach is a first-order representation.
++ There should be convenient conversions.
+
++ [ ] Isomorphism / Conversion ::
+  + Implement |toBijection : Permutation n → (Fin n ↔ Fin n)|.
+  + Implement |fromBijection : (Fin n ↔ Fin n) → Permutation n|.
+  + Prove they are inverses (showing Lehmer codes are a complete and sound representation).
++ [ ] Completeness of Operations ::
+  + [ ] Transposition :: Implement |transpose : Fin n → Fin n → Permutation n| in the Lehmer representation.
+  + [ ] Reverse :: Prove that your |reverseP| is an involution.
+  + [ ] Removal/insertion :: Align your |split| and |extend| with the |remove| and |insert| logic found in the existing |Permutation.agda|.
+
+** 4. (Optional) combinatorics & applications
++ [ ] Johnson-Trotter Completeness :: Prove that the |johnson-trotter| list contains all |n!| permutations.
++ [ ] Factorial Number System :: Explicitly implement the conversion between |Permutation n| and its |ℕ| rank (index in lexicographical order).
++ [ ] Parity Theorems :: Prove that |parity (ps ∙ qs) ≡ (parity ps) xor (parity qs)|.
+  
