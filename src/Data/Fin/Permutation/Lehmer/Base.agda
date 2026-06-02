@@ -111,6 +111,27 @@ inverse {suc n} ps  = j :- inverse (remove j ps)
 swap : Permutation n → Permutation (2+ n)
 swap ps = 1F :- 0F :- ps
 
+-- Extending permutations:
+-- Intuitively, the result should map i to pᵢ and the rest according to ps
+
+extend : (i : Fin (suc n)) -> (pᵢ : Fin (suc n)) -> Permutation n -> Permutation (suc n)
+extStep :  Fin (suc n) -> Fin (suc (suc n)) -> Fin (suc n) ->
+           Permutation n -> Permutation (suc (suc n))
+extStep {n} i pᵢ p₀ ps = punchIn pᵢ p₀ :- extend {n} i (pinch p₀ pᵢ) ps
+extend zero     pᵢ  ps          = pᵢ :- ps
+extend (suc i)  pᵢ  (p₀ :- ps)  = extStep i pᵢ p₀ ps
+
+
+------------------------------------------------------------------------
+-- Transposition
+
+-- Transposes two elements in the permutation, keeping the remainder
+-- of the permutation the same. Not quite the same as extend twice.
+-- TODO
+-- transpose : Fin n → Fin n → Permutation n
+-- transpose 0F j = {!!}
+-- transpose (suc i) j = {!!}
+
 -- reverse "maps i to n - i" for i in {0..n-1}
 reverse : (n : ℕ) → Permutation n
 reverse zero    = nil
